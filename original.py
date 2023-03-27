@@ -22,8 +22,8 @@ import math
 from sensor_msgs.msg import LaserScan
 from geometry_msgs.msg import Twist
 
-LINEAR_VEL = 0.22
-STOP_DISTANCE = 0.2
+LINEAR_VEL = 0.05
+STOP_DISTANCE = 0.05
 LIDAR_ERROR = 0.05
 SAFE_STOP_DISTANCE = STOP_DISTANCE + LIDAR_ERROR
 
@@ -39,7 +39,7 @@ class Obstacle():
         samples = len(scan.ranges)  # The number of samples is defined in 
                                     # turtlebot3_<model>.gazebo.xacro file,
                                     # the default is 360.
-        samples_view = 1            # 1 <= samples_view <= samples
+        samples_view = 6            # 1 <= samples_view <= samples
         
         if samples_view > samples:
             samples_view = samples
@@ -54,7 +54,7 @@ class Obstacle():
             left_lidar_samples = scan.ranges[left_lidar_samples_ranges:]
             right_lidar_samples = scan.ranges[:right_lidar_samples_ranges]
             scan_filter.extend(left_lidar_samples + right_lidar_samples)
-
+        scan_filter = [x if x != 0 else 3.5 for x in scan_filter]  # filter out scan_filter == 0
         for i in range(samples_view):
             if scan_filter[i] == float('Inf'):
                 scan_filter[i] = 3.5
