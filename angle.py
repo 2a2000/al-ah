@@ -39,7 +39,7 @@ class Obstacle():
         samples = len(scan.ranges)  # The number of samples is defined in 
                                     # turtlebot3_<model>.gazebo.xacro file,
                                     # the default is 360.
-        samples_view = 11            # 1 <= samples_view <= samples
+        samples_view = 6            # 1 <= samples_view <= samples
                         #Change the value of samples_view to a larger odd number, e.g. samples_view = 11. //2A
                         #his will allow the lidar to read 11 samples                                      //2A
         
@@ -51,7 +51,7 @@ class Obstacle():
 
         else:
             #This will calculate the left_lidar_samples_ranges and right_lidar_samples_ranges based on the angle_increment and samples_view. //2A
-            #Also, you need to update the samples_view to 11 to get 11 samples for -45 to 45 degrees. //2A
+            #Also, you need to update the samples_view to 6 to get 11 samples for -45 to 45 degrees. //2A
             left_lidar_samples_ranges = -(samples_view//2 - (math.degrees(scan.angle_increment) * samples_view))
             right_lidar_samples_ranges = samples_view//2 + (math.degrees(scan.angle_increment) * (samples_view - 1))
             
