@@ -39,21 +39,17 @@ class Obstacle():
         samples = len(scan.ranges)  # The number of samples is defined in 
                                     # turtlebot3_<model>.gazebo.xacro file,
                                     # the default is 360.
-        samples_view = 6            # 1 <= samples_view <= samples
-                        #Change the value of samples_view to a larger odd number, e.g. samples_view = 11. //2A
-                        #his will allow the lidar to read 11 samples                                      //2A
+        samples_view = 1            # 1 <= samples_view <= samples
         
         if samples_view > samples:
             samples_view = samples
 
-        if samples_view is 1:   
+        if samples_view is 1:
             scan_filter.append(scan.ranges[0])
 
         else:
-            #This will calculate the left_lidar_samples_ranges and right_lidar_samples_ranges based on the angle_increment and samples_view. //2A
-            #Also, you need to update the samples_view to 6 to get 11 samples for -45 to 45 degrees. //2A
-            left_lidar_samples_ranges = -(samples_view//2 - (math.degrees(scan.angle_increment) * samples_view))
-            right_lidar_samples_ranges = samples_view//2 + (math.degrees(scan.angle_increment) * (samples_view - 1))
+            left_lidar_samples_ranges = -(samples_view//2 + samples_view % 2)
+            right_lidar_samples_ranges = samples_view//2
             
             left_lidar_samples = scan.ranges[left_lidar_samples_ranges:]
             right_lidar_samples = scan.ranges[:right_lidar_samples_ranges]
@@ -70,8 +66,6 @@ class Obstacle():
     def obstacle(self):
         twist = Twist()
         turtlebot_moving = True
-        eft_obstacle = False
-        right_obstacle = False
 
         while not rospy.is_shutdown():
             lidar_distances = self.get_scan()
@@ -84,35 +78,12 @@ class Obstacle():
                     self._cmd_pub.publish(twist)
                     turtlebot_moving = False
                     rospy.loginfo('Stop!')
-            
-                # Check for left and right obstacles
-                left_obstacle = any(distance < SAFE_STOP_DISTANCE for distance in lidar_distances[:5])
-                right_obstacle = any(distance < SAFE_STOP_DISTANCE for distance in lidar_distances[-5:])
-
-                # Take a turn to avoid obstacles
-                if left_obstacle and not right_obstacle:
-                    twist.linear.x = 0.0
-                    twist.angular.z = 0.5
-                    self._cmd_pub.publish(twist)
-                    rospy.loginfo('Turn Right!')
-                elif right_obstacle and not left_obstacle:
-                    twist.linear.x = 0.0
-                    twist.angular.z = -0.5
-                    self._cmd_pub.publish(twist)
-                    rospy.loginfo('Turn Left!')
-                else:
-                # Move backward if there's no other way to go
-                    twist.linear.x = -0.1
-                    twist.angular.z = 0.0
-                    self._cmd_pub.publish(twist)
-                    rospy.loginfo('Move Backward!')
-            
-        else:
-            twist.linear.x = LINEAR_VEL
-            twist.angular.z = 0.0
-            self._cmd_pub.publish(twist)
-            turtlebot_moving = True
-            rospy.loginfo('Distance of the obstacle : %f', min_distance)
+            else:
+                twist.linear.x = LINEAR_VEL
+                twist.angular.z = 0.0
+                self._cmd_pub.publish(twist)
+                turtlebot_moving = True
+                rospy.loginfo('Distance of the obstacle : %f', min_distance)
 
 def main():
     rospy.init_node('turtlebot3_obstacle')
