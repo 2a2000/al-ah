@@ -138,10 +138,10 @@ class Obstacle():
             elif math.isnan(scan_filter[i]):
                 scan_filter[i] = 0
 
-        right_distance = min(right_1_lidar_samples + right_2_lidar_samples + 0.01) 
-        left_distance = min(left_1_lidar_samples + left_2_lidar_samples + 0.01)
-        front_distance = min(front_left_lidar_samples + front_right_lidar_samples + 0.01)
-        back_distance = min(back_left_lidar_samples + back_right_lidar_samples + 0.01)  
+        right_distance = min(right_1_lidar_samples + right_2_lidar_samples + (0.01,)) 
+        left_distance = min(left_1_lidar_samples + left_2_lidar_samples + (0.01,))
+        front_distance = min(front_left_lidar_samples + front_right_lidar_samples + (0.01,))
+        back_distance = min(back_left_lidar_samples + back_right_lidar_samples + (0.01,))  
         print("lidar Data is being returned\n") 
         return scan_filter
 
